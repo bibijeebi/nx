@@ -6,10 +6,7 @@
     flake-utils.url = "github:numtide/flake-utils";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
-      };
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
@@ -41,12 +38,14 @@
             xorg.libXrandr
             xorg.libXi
             vulkan-loader
+            openssl
             pkg-config
           ]
           ++ lib.optionals stdenv.isDarwin [
             darwin.apple_sdk.frameworks.AppKit
             darwin.apple_sdk.frameworks.CoreFoundation
             darwin.apple_sdk.frameworks.CoreServices
+            darwin.apple_sdk.frameworks.Security
           ];
 
         cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
@@ -60,10 +59,13 @@
 
           cargoLock = {
             lockFile = ./Cargo.lock;
-            outputHashes = {
-              # Add any git dependencies here if needed
-            };
           };
+
+          # Add OpenSSL env vars
+          OPENSSL_NO_VENDOR = true;
+          OPENSSL_DIR = pkgs.openssl.dev;
+          OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
+          OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
         };
 
         devShell = pkgs.mkShell {
@@ -73,7 +75,15 @@
             rust-analyzer
             clippy
             rustfmt
+            openssl
+            pkg-config
           ];
+
+          # Add OpenSSL env vars for development shell
+          OPENSSL_NO_VENDOR = true;
+          OPENSSL_DIR = "${pkgs.openssl.dev}";
+          OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
+          OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
 
           RUST_SRC_PATH = pkgs.rust.packages.stable.rustPlatform.rustLibSrc;
         };
