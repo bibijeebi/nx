@@ -81,4 +81,56 @@ pub enum Commands {
         #[arg(long)]
         allow_unfree: Option<bool>,
     },
+
+    /// Modify NixOS system configuration
+    #[command(alias = "sys")]
+    System {
+        #[command(subcommand)]
+        command: SystemCommands,
+    },
+}
+
+#[derive(Subcommand)]
+pub enum SystemCommands {
+    /// Add a package to system packages
+    #[command(alias = "pkg")]
+    Package {
+        /// Package to add
+        package: String,
+
+        /// Make the change permanent (modifies configuration.nix)
+        #[arg(short, long)]
+        permanent: bool,
+    },
+
+    /// Enable a program or service
+    #[command(alias = "en")]
+    Enable {
+        /// Program or service to enable (e.g., "programs.fish" or "services.docker")
+        program: String,
+
+        /// Make the change permanent (modifies configuration.nix)
+        #[arg(short, long)]
+        permanent: bool,
+    },
+
+    /// Set a NixOS option
+    #[command(alias = "set")]
+    SetOption {
+        /// Option path (e.g., "programs.fish.enable" or "networking.hostName")
+        path: String,
+
+        /// Value to set (will be parsed as Nix expression)
+        value: String,
+
+        /// Make the change permanent (modifies configuration.nix)
+        #[arg(short, long)]
+        permanent: bool,
+    },
+
+    /// Apply temporary changes
+    Apply,
+
+    /// Show pending changes
+    Show,
 }
