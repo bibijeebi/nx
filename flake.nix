@@ -14,5 +14,8 @@
     packages = forAllSystems (system: {
       default = pkgsFor.${system}.callPackage ./. {};
     });
+    devShells = forAllSystems (system: {
+      default = pkgsFor.${system}.callPackage ./shell.nix {};
+    });
   };
 }
