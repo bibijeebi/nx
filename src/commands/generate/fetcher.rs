@@ -7,12 +7,12 @@ use std::process::Command;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GitHubRepo {
-    name: String,
-    description: Option<String>,
-    default_branch: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub default_branch: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum FetcherType {
     GitHub,
     GitLab,
@@ -21,28 +21,12 @@ pub enum FetcherType {
     FromGitea,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FetcherInfo {
     pub url: String,
     pub fetcher_type: FetcherType,
     pub hash: Option<String>,
     pub version: Option<String>,
-}
-
-pub async fn generate_expression(url_str: &str) -> Result<String, Box<dyn std::error::Error>> {
-    let fetcher_info = analyze_url(url_str)?;
-    let hash = match fetcher_info.hash {
-        Some(h) => h,
-        None => calculate_hash(&fetcher_info).await?,
-    };
-
-    match fetcher_info.fetcher_type {
-        FetcherType::GitHub => super::expression::generate_github_expression(&fetcher_info, &hash).await,
-        FetcherType::URL => super::expression::generate_url_expression(&fetcher_info, &hash),
-        FetcherType::Git => super::expression::generate_git_expression(&fetcher_info, &hash),
-        FetcherType::GitLab => super::expression::generate_gitlab_expression(&fetcher_info, &hash).await,
-        FetcherType::FromGitea => super::expression::generate_gitea_expression(&fetcher_info, &hash),
-    }
 }
 
 pub fn analyze_url(url_str: &str) -> Result<FetcherInfo, Box<dyn std::error::Error>> {
