@@ -1,40 +1,41 @@
+use crate::cli::SystemCommands;
+use crate::config::store::Config;
 use std::fs;
 use std::path::{Path, PathBuf};
-use crate::config::store::Config;
 
 const NIXOS_CONFIG_PATH: &str = "/etc/nixos/configuration.nix";
 const TEMP_CONFIG_PATH: &str = "/etc/nixos/.nx-temp.nix";
 
-pub fn execute(command: crate::cli::SystemCommands, passthrough_args: &[String], config: &Config) -> i32 {
+pub fn execute(command: SystemCommands, _passthrough_args: &[String], _config: &Config) -> i32 {
     match command {
-        crate::cli::SystemCommands::Package { package, permanent } => {
+        SystemCommands::Package { package, permanent } => {
             if permanent {
                 add_system_package(&package)
             } else {
                 add_temp_package(&package)
             }
-        },
-        crate::cli::SystemCommands::Enable { program, permanent } => {
+        }
+        SystemCommands::Enable { program, permanent } => {
             let option = format!("{}.enable", program);
             if permanent {
                 set_nixos_option(&option, "true")
             } else {
                 set_temp_option(&option, "true")
             }
-        },
-        crate::cli::SystemCommands::SetOption { path, value, permanent } => {
+        }
+        SystemCommands::SetOption {
+            path,
+            value,
+            permanent,
+        } => {
             if permanent {
                 set_nixos_option(&path, &value)
             } else {
                 set_temp_option(&path, &value)
             }
-        },
-        crate::cli::SystemCommands::Apply => {
-            apply_temp_changes()
-        },
-        crate::cli::SystemCommands::Show => {
-            show_pending_changes()
-        },
+        }
+        SystemCommands::Apply => apply_temp_changes(),
+        SystemCommands::Show => show_pending_changes(),
     }
 }
 
@@ -49,7 +50,10 @@ fn get_temp_path() -> PathBuf {
 fn ensure_temp_config() -> std::io::Result<()> {
     let temp_path = get_temp_path();
     if !temp_path.exists() {
-        fs::write(&temp_path, "# Temporary NixOS configuration changes\n{ config, pkgs, ... }:\n{\n}\n")?;
+        fs::write(
+            &temp_path,
+            "# Temporary NixOS configuration changes\n{ config, pkgs, ... }:\n{\n}\n",
+        )?;
     }
     Ok(())
 }
@@ -62,8 +66,11 @@ fn add_system_package(package: &str) -> i32 {
         eprintln!("Failed to modify configuration: {}", e);
         return 1;
     }
-    
-    println!("Added {} to system packages. Run 'sudo nixos-rebuild switch' to apply.", package);
+
+    println!(
+        "Added {} to system packages. Run 'sudo nixos-rebuild switch' to apply.",
+        package
+    );
     0
 }
 
@@ -81,7 +88,10 @@ fn add_temp_package(package: &str) -> i32 {
         return 1;
     }
 
-    println!("Added {} to temporary configuration. Run 'nx sys apply' to apply changes.", package);
+    println!(
+        "Added {} to temporary configuration. Run 'nx sys apply' to apply changes.",
+        package
+    );
     0
 }
 
@@ -94,7 +104,10 @@ fn set_nixos_option(path: &str, value: &str) -> i32 {
         return 1;
     }
 
-    println!("Set {} = {}. Run 'sudo nixos-rebuild switch' to apply.", path, value);
+    println!(
+        "Set {} = {}. Run 'sudo nixos-rebuild switch' to apply.",
+        path, value
+    );
     0
 }
 
@@ -112,7 +125,10 @@ fn set_temp_option(path: &str, value: &str) -> i32 {
         return 1;
     }
 
-    println!("Set {} = {} in temporary configuration. Run 'nx sys apply' to apply changes.", path, value);
+    println!(
+        "Set {} = {} in temporary configuration. Run 'nx sys apply' to apply changes.",
+        path, value
+    );
     0
 }
 
@@ -125,7 +141,12 @@ fn apply_temp_changes() -> i32 {
 
     // Apply changes using nixos-rebuild
     let status = std::process::Command::new("sudo")
-        .args(["nixos-rebuild", "switch", "-I", &format!("nixos-config={}", temp_path.display())])
+        .args([
+            "nixos-rebuild",
+            "switch",
+            "-I",
+            &format!("nixos-config={}", temp_path.display()),
+        ])
         .status();
 
     match status {
@@ -194,7 +215,7 @@ fn add_package_to_config(content: &str, package: &str) -> String {
 
 fn add_option_to_config(content: &str, path: &str, value: &str) -> String {
     let option_line = format!("  {} = {};\n", path, value);
-    
+
     // Add the option before the closing brace
     if let Some(pos) = content.rfind('}') {
         format!("{}{}{}", &content[..pos], option_line, &content[pos..])

@@ -32,6 +32,9 @@ fn main() {
             commands::search_execute(&query, &cli.passthrough_args, &config)
         }
         Commands::List => commands::list_execute(&cli.passthrough_args, &config),
+        Commands::System { command } => {
+            commands::system_execute(command, &cli.passthrough_args, &config)
+        }
     };
 
     std::process::exit(exit_code);
