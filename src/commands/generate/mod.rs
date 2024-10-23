@@ -8,7 +8,7 @@ use expression::{
     generate_git_expression, generate_gitea_expression, generate_github_expression,
     generate_gitlab_expression, generate_url_expression,
 };
-use fetcher::{analyze_url, calculate_hash, FetcherInfo, FetcherType};
+use fetcher::{analyze_url, calculate_hash, FetcherType};
 
 pub async fn execute(
     url: &str,
