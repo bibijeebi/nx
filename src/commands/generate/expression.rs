@@ -1,11 +1,14 @@
 use super::fetcher::FetcherInfo;
 
-pub async fn generate_github_expression(info: &FetcherInfo, hash: &str) -> Result<String, Box<dyn std::error::Error>> {
+pub async fn generate_github_expression(
+    info: &FetcherInfo,
+    hash: &str,
+) -> Result<String, Box<dyn std::error::Error>> {
     let parts: Vec<&str> = info.url.split('/').collect();
     let (owner, repo) = (parts[3], parts[4].trim_end_matches(".git"));
-    
+
     let version = info.version.as_deref().unwrap_or("HEAD");
-    
+
     Ok(format!(
         r#"{{ pkgs ? import <nixpkgs> {{}} }}:
 
@@ -37,10 +40,13 @@ pkgs.stdenv.mkDerivation rec {{
     ))
 }
 
-pub async fn generate_gitlab_expression(info: &FetcherInfo, hash: &str) -> Result<String, Box<dyn std::error::Error>> {
+pub async fn generate_gitlab_expression(
+    info: &FetcherInfo,
+    hash: &str,
+) -> Result<String, Box<dyn std::error::Error>> {
     let parts: Vec<&str> = info.url.split('/').collect();
     let (owner, repo) = (parts[3], parts[4].trim_end_matches(".git"));
-    
+
     Ok(format!(
         r#"{{ pkgs ? import <nixpkgs> {{}} }}:
 
@@ -77,9 +83,12 @@ pkgs.stdenv.mkDerivation rec {{
     ))
 }
 
-pub fn generate_url_expression(info: &FetcherInfo, hash: &str) -> Result<String, Box<dyn std::error::Error>> {
+pub fn generate_url_expression(
+    info: &FetcherInfo,
+    hash: &str,
+) -> Result<String, Box<dyn std::error::Error>> {
     let filename = info.url.split('/').last().unwrap_or("source");
-    
+
     Ok(format!(
         r#"{{ pkgs ? import <nixpkgs> {{}} }}:
 
@@ -113,9 +122,17 @@ pkgs.stdenv.mkDerivation rec {{
     ))
 }
 
-pub fn generate_git_expression(info: &FetcherInfo, hash: &str) -> Result<String, Box<dyn std::error::Error>> {
-    let name = info.url.split('/').last().unwrap_or("source").trim_end_matches(".git");
-    
+pub fn generate_git_expression(
+    info: &FetcherInfo,
+    hash: &str,
+) -> Result<String, Box<dyn std::error::Error>> {
+    let name = info
+        .url
+        .split('/')
+        .last()
+        .unwrap_or("source")
+        .trim_end_matches(".git");
+
     Ok(format!(
         r#"{{ pkgs ? import <nixpkgs> {{}} }}:
 
@@ -150,10 +167,13 @@ pkgs.stdenv.mkDerivation rec {{
     ))
 }
 
-pub fn generate_gitea_expression(info: &FetcherInfo, hash: &str) -> Result<String, Box<dyn std::error::Error>> {
+pub fn generate_gitea_expression(
+    info: &FetcherInfo,
+    hash: &str,
+) -> Result<String, Box<dyn std::error::Error>> {
     let parts: Vec<&str> = info.url.split('/').collect();
     let (owner, repo) = (parts[3], parts[4].trim_end_matches(".git"));
-    
+
     Ok(format!(
         r#"{{ pkgs ? import <nixpkgs> {{}} }}:
 

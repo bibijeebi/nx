@@ -1,9 +1,9 @@
-use reqwest;
-use sha2::{Sha256, Digest};
-use url::Url;
 use regex::Regex;
+use reqwest;
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::process::Command;
+use url::Url;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GitHubRepo {
@@ -31,7 +31,7 @@ pub struct FetcherInfo {
 
 pub fn analyze_url(url_str: &str) -> Result<FetcherInfo, Box<dyn std::error::Error>> {
     let url = Url::parse(url_str)?;
-    
+
     let fetcher_type = match url.host_str() {
         Some("github.com") => FetcherType::GitHub,
         Some("gitlab.com") => FetcherType::GitLab,
@@ -55,7 +55,7 @@ pub async fn calculate_hash(info: &FetcherInfo) -> Result<String, Box<dyn std::e
             if parts.len() >= 5 {
                 let owner = parts[3];
                 let repo = parts[4].trim_end_matches(".git");
-                
+
                 let client = reqwest::Client::new();
                 let api_url = format!("https://api.github.com/repos/{}/{}", owner, repo);
                 let response = client
@@ -63,15 +63,15 @@ pub async fn calculate_hash(info: &FetcherInfo) -> Result<String, Box<dyn std::e
                     .header("User-Agent", "nix-prefetch")
                     .send()
                     .await?;
-                
+
                 let repo_info: GitHubRepo = response.json().await?;
-                
+
                 let output = Command::new("nix-prefetch-git")
                     .arg(&info.url)
                     .arg("--rev")
                     .arg(&repo_info.default_branch)
                     .output()?;
-                
+
                 let hash = String::from_utf8(output.stdout)?;
                 Ok(hash.trim().to_string())
             } else {
@@ -79,18 +79,14 @@ pub async fn calculate_hash(info: &FetcherInfo) -> Result<String, Box<dyn std::e
             }
         }
         FetcherType::URL => {
-            let output = Command::new("nix-prefetch-url")
-                .arg(&info.url)
-                .output()?;
-            
+            let output = Command::new("nix-prefetch-url").arg(&info.url).output()?;
+
             let hash = String::from_utf8(output.stdout)?;
             Ok(hash.trim().to_string())
         }
         _ => {
-            let output = Command::new("nix-prefetch-git")
-                .arg(&info.url)
-                .output()?;
-            
+            let output = Command::new("nix-prefetch-git").arg(&info.url).output()?;
+
             let hash = String::from_utf8(output.stdout)?;
             Ok(hash.trim().to_string())
         }

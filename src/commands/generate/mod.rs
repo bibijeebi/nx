@@ -1,19 +1,21 @@
 use std::fs;
 use std::path::Path;
 
-mod fetcher;
 mod expression;
+mod fetcher;
 
-use fetcher::{FetcherInfo, FetcherType, analyze_url, calculate_hash};
 use expression::{
-    generate_github_expression,
-    generate_gitlab_expression,
-    generate_url_expression,
-    generate_git_expression,
-    generate_gitea_expression,
+    generate_git_expression, generate_gitea_expression, generate_github_expression,
+    generate_gitlab_expression, generate_url_expression,
 };
+use fetcher::{analyze_url, calculate_hash, FetcherInfo, FetcherType};
 
-pub async fn execute(url: &str, output: Option<String>, _passthrough_args: &[String], _config: &Config) -> i32 {
+pub async fn execute(
+    url: &str,
+    output: Option<String>,
+    _passthrough_args: &[String],
+    _config: &Config,
+) -> i32 {
     match generate_expression(url).await {
         Ok(expression) => {
             match output {
