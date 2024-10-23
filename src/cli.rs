@@ -88,6 +88,17 @@ pub enum Commands {
         #[command(subcommand)]
         command: SystemCommands,
     },
+
+    /// Generate Nix expression with prefilled hashes
+    #[command(alias = "gen")]
+    Generate {
+        /// URL to generate expression for
+        url: String,
+
+        /// Output file path (optional)
+        #[arg(short, long)]
+        output: Option<String>,
+    },
 }
 
 #[derive(Subcommand)]

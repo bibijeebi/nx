@@ -1,8 +1,8 @@
-use std::process::Command;
+use crate::commands::system::{add_system_package, modify_config_file};
 use crate::config::store::Config;
 use crate::utils::command::run_command;
 use crate::utils::package::is_unfree_package;
-use crate::commands::system::{add_system_package, modify_config_file};
+use std::process::Command;
 
 pub fn install(package: &str, passthrough_args: &[String], config: &Config) -> i32 {
     // Check if package is unfree
@@ -46,26 +46,22 @@ pub fn install(package: &str, passthrough_args: &[String], config: &Config) -> i
         Ok(status) if status.success() => {
             // Remove from profile since it's now in system packages
             println!("Removing {} from profile...", package);
-            if let Ok(profile_list) = Command::new("nix")
-                .args(["profile", "list"])
-                .output()
-            {
+            if let Ok(profile_list) = Command::new("nix").args(["profile", "list"]).output() {
                 let output = String::from_utf8_lossy(&profile_list.stdout);
                 if let Some(package_id) = find_package_id(&output, package) {
-                    let remove_result = run_command(
-                        "nix",
-                        &["profile", "remove", &package_id],
-                        &[],
-                        config,
-                    );
-                    
+                    let remove_result =
+                        run_command("nix", &["profile", "remove", &package_id], &[], config);
+
                     if remove_result.is_err() {
                         eprintln!("Warning: Failed to remove package from profile");
                     }
                 }
             }
-            
-            println!("Successfully installed {} and added to system packages!", package);
+
+            println!(
+                "Successfully installed {} and added to system packages!",
+                package
+            );
             0
         }
         _ => {

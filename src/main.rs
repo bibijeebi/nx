@@ -35,6 +35,16 @@ fn main() {
         Commands::System { command } => {
             commands::system_execute(command, &cli.passthrough_args, &config)
         }
+        Commands::Generate { url, output } => {
+            tokio::runtime::Runtime::new()
+                .unwrap()
+                .block_on(commands::generate_execute(
+                    &url,
+                    output,
+                    &cli.passthrough_args,
+                    &config,
+                ))
+        }
     };
 
     std::process::exit(exit_code);
