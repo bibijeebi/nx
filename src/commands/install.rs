@@ -1,4 +1,4 @@
-use crate::commands::system::{add_system_package, modify_config_file};
+use crate::commands::system::add_system_package;
 use crate::config::store::Config;
 use crate::utils::command::run_command;
 use crate::utils::package::is_unfree_package;

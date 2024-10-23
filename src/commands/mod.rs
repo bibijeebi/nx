@@ -7,6 +7,7 @@ pub mod remove;
 pub mod search;
 pub mod system;
 pub mod update;
+pub mod generate;
 
 pub use self::config::execute as config_execute;
 pub use self::gc::execute as gc_execute;
@@ -17,3 +18,4 @@ pub use self::remove::execute as remove_execute;
 pub use self::search::execute as search_execute;
 pub use self::system::execute as system_execute;
 pub use self::update::execute as update_execute;
+pub use self::generate::execute as generate_execute;
