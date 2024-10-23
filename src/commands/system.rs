@@ -39,7 +39,7 @@ pub fn execute(command: SystemCommands, _passthrough_args: &[String], _config: &
     }
 }
 
-fn get_config_path() -> PathBuf {
+pub fn get_config_path() -> PathBuf {
     PathBuf::from(NIXOS_CONFIG_PATH)
 }
 
@@ -58,7 +58,7 @@ fn ensure_temp_config() -> std::io::Result<()> {
     Ok(())
 }
 
-fn add_system_package(package: &str) -> i32 {
+pub fn add_system_package(package: &str) -> i32 {
     let config_path = get_config_path();
     if let Err(e) = modify_config_file(&config_path, |content| {
         add_package_to_config(content, package)
@@ -186,7 +186,7 @@ fn show_pending_changes() -> i32 {
     }
 }
 
-fn modify_config_file<F>(path: &Path, modifier: F) -> std::io::Result<()>
+pub fn modify_config_file<F>(path: &Path, modifier: F) -> std::io::Result<()>
 where
     F: FnOnce(&str) -> String,
 {
@@ -196,7 +196,7 @@ where
     Ok(())
 }
 
-fn add_package_to_config(content: &str, package: &str) -> String {
+pub fn add_package_to_config(content: &str, package: &str) -> String {
     if content.contains("environment.systemPackages = with pkgs; [") {
         // Add package to existing system packages list
         content.replace(
