@@ -1,7 +1,7 @@
-use serde::{Serialize, Deserialize};
+use directories::ProjectDirs;
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
-use directories::ProjectDirs;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Config {
@@ -34,7 +34,6 @@ impl Config {
 }
 
 fn get_config_path() -> Option<PathBuf> {
-    ProjectDirs::from("com", "nx", "nx-wrapper").map(|proj_dirs| {
-        proj_dirs.config_dir().to_path_buf().join("config.json")
-    })
+    ProjectDirs::from("com", "nx", "nx-wrapper")
+        .map(|proj_dirs| proj_dirs.config_dir().to_path_buf().join("config.json"))
 }

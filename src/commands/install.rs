@@ -10,9 +10,14 @@ pub fn install(package: &str, passthrough_args: &[String], config: &Config) -> i
             return 1;
         }
     }
-    
+
     let cmd = format!("nixpkgs#{}", package);
-    match run_command("nix", &["profile", "install", &cmd], passthrough_args, config) {
+    match run_command(
+        "nix",
+        &["profile", "install", &cmd],
+        passthrough_args,
+        config,
+    ) {
         Ok(status) => status.code().unwrap_or(1),
         Err(_) => {
             eprintln!("Failed to install package");
