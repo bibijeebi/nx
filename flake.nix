@@ -68,7 +68,7 @@
           OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
         };
 
-        devShell = pkgs.mkShell {
+        devShells.default = pkgs.mkShell {
           inherit nativeBuildInputs buildInputs;
 
           packages = with pkgs; [
